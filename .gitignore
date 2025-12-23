@@ -1,0 +1,45 @@
+# Data files (large)
+data/raw/
+data/processed/
+data/mortality/
+
+# Output files (can be regenerated)
+output/
+
+# Cloned tools (can be re-cloned)
+nhanes_tools/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+*.egg-info/
+.eggs/
+*.egg
+.venv/
+venv/
+ENV/
+
+# R
+.Rhistory
+.Rdata
+.RData
+*.Rproj.user/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Logs
+*.log
