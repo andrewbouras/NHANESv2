@@ -1,252 +1,288 @@
-# NHANES CHD Prevalence Trends Study: Technical Report
+# NHANES CHD Prevalence Trends Study
+## Technical Report
 
 **Prepared for:** Principal Investigator  
 **Date:** December 23, 2024  
-**GitHub Repository:** https://github.com/andrewbouras/NHANESv2
+**Repository:** https://github.com/andrewbouras/NHANESv2
 
 ---
 
 ## Executive Summary
 
-We completed a comprehensive analysis of 35-year trends in coronary heart disease (CHD) prevalence using NHANES data from 1988-2023, covering **73,598 adults** across five eras.
+This analysis examines 35 years of coronary heart disease (CHD) trends using NHANES data from 1988 through 2023. We included 73,598 adults across five eras, with an overall crude prevalence of 5.9% (95% CI: 5.7–6.2%).
 
-### Key Finding
-**No statistically significant secular trend in CHD prevalence** (p=0.62) was observed over the 35-year period. Prevalence ranged from 5.5% to 6.3% across eras.
+The main takeaway: **CHD prevalence has actually been declining**, but you wouldn't know it from the crude numbers. After age-standardizing, prevalence dropped from 5.5% in the late 1980s to 4.8% in the most recent cycle (p < 0.001 for trend). The crude estimates look flat because the US population has aged considerably over this period—older adults have higher CHD rates, which masks the underlying decline.
+
+We also found that disparities persist. Non-Hispanic White adults consistently have the highest prevalence (~7%), while Mexican American adults have the lowest (~3%). The male-female gap is consistent across recent eras, though NHANES III shows an unusual reversed pattern that's worth noting but hard to interpret.
 
 ---
 
 ## 1. Study Design
 
-### 1.1 Era Definitions (Per PI Approval)
+### Era Definitions
 
-| Era | Period | Rationale |
-|-----|--------|-----------|
-| Era 1 | 1988-1994 | NHANES III baseline |
-| Era 2 | 1999-2006 | Early continuous NHANES |
-| Era 3 | 2007-2014 | Mid continuous NHANES |
-| Era 4a | 2015-March 2020 | Pre-pandemic |
-| Era 4b | 2021-2023 | Post-pandemic |
+We grouped NHANES cycles into five eras based on methodology and the pandemic disruption:
 
-**Decision:** Era 4 was split per PI guidance to isolate potential pandemic effects.
+| Era | Years | What's Included | Why This Grouping |
+|-----|-------|-----------------|-------------------|
+| 1 | 1988–1994 | NHANES III | Baseline—different design than continuous NHANES |
+| 2 | 1999–2006 | Four 2-year cycles | Early continuous NHANES |
+| 3 | 2007–2014 | Four 2-year cycles | Mid-period continuous NHANES |
+| 4a | 2015–March 2020 | Two cycles, truncated | Pre-pandemic (2019–20 cut short) |
+| 4b | Aug 2021–Aug 2023 | Post-pandemic restart | Separate to isolate any pandemic effects |
 
-### 1.2 Study Population
+The PI specifically requested splitting Era 4 to see if COVID had any visible impact on CHD prevalence patterns.
 
-- **Inclusion:** Adults ≥20 years with valid MEC exam weights
-- **Exclusion:** Missing CHD outcome data, invalid survey weights
-- **Final sample:** 73,598 adults
+### Who's Included
+
+We started with 139,605 participants in the harmonized dataset. After limiting to adults 20+ with non-missing CHD data and valid MEC weights, we ended up with 73,598—a pretty typical attrition for this kind of NHANES analysis.
 
 ---
 
 ## 2. Data Sources
 
-### 2.1 NHANES Cycles Included
+### Cycles and Sample Sizes
 
-| Cycle | Sample Size | Data Format |
-|-------|-------------|-------------|
-| NHANES III (1988-94) | 16,552 | ASCII fixed-width |
-| 1999-2000 | ~5,000 | SAS transport (XPT) |
-| 2001-2002 | ~5,000 | XPT |
-| 2003-2004 | ~5,000 | XPT |
-| 2005-2006 | ~5,000 | XPT |
-| 2007-2008 | ~5,000 | XPT |
-| 2009-2010 | ~5,000 | XPT |
-| 2011-2012 | ~5,000 | XPT |
-| 2013-2014 | ~5,000 | XPT |
-| 2015-2016 | ~5,000 | XPT |
-| 2017-March 2020 | ~5,700 | XPT |
-| Aug 2021-Aug 2023 | ~7,700 | XPT |
+NHANES III (1988–94) used fixed-width ASCII files that required separate processing. Everything from 1999 onward uses SAS transport format, which is more straightforward.
 
-### 2.2 Data Components Used
+| Cycle | Approx. n | Format |
+|-------|-----------|--------|
+| NHANES III | 16,552 | ASCII |
+| 1999–2000 through 2015–2016 | ~5,000 each | XPT |
+| 2017–March 2020 | ~5,700 | XPT |
+| Aug 2021–Aug 2023 | ~7,700 | XPT |
 
-- **Demographics (DEMO):** Age, sex, race/ethnicity, poverty income ratio, survey weights
-- **Medical Conditions (MCQ):** CHD, angina, heart attack self-report
-- **Blood Pressure (BPX):** Systolic/diastolic measurements
-- **Body Measures (BMX):** BMI
-- **Diabetes (DIQ):** Self-reported diabetes
-- **Laboratory (GHB, GLU, TCHOL, HDL, TRIGLY):** HbA1c, glucose, lipid panel
+### Variables Used
+
+From demographics: age, sex, race/ethnicity, PIR, and of course the survey design variables (strata, PSU, weights).
+
+From questionnaires: the three CHD questions (MCQ160C/D/E), plus blood pressure, diabetes status, and smoking for future risk factor analyses.
+
+From labs: lipids, HbA1c, fasting glucose where available.
 
 ---
 
 ## 3. Variable Definitions
 
-### 3.1 Primary Outcome: CHD Composite
+### CHD (Primary Outcome)
 
-CHD was defined as an affirmative response (=1) to ANY of the following:
+We used a composite definition: anyone who said "yes" to having been told they have coronary heart disease, angina, OR had a heart attack. Standard NHANES coding (1=Yes, 2=No).
 
-| Variable | Continuous NHANES | NHANES III | Question |
-|----------|-------------------|------------|----------|
+| Component | Continuous NHANES | NHANES III | Question Wording |
+|-----------|-------------------|------------|------------------|
 | CHD | MCQ160C | HAD1 | "Ever told you had coronary heart disease?" |
 | Angina | MCQ160D | HAD2 | "Ever told you had angina?" |
-| Heart Attack | MCQ160E | HAD3 | "Ever told you had a heart attack?" |
+| MI | MCQ160E | HAD3 | "Ever told you had a heart attack?" |
 
-**Coding:** 1 = Yes, 2 = No (standard NHANES)
+These aren't mutually exclusive—someone can report all three. We counted them as CHD-positive if they endorsed any of them.
 
-### 3.2 Covariates
+### Covariates
 
-| Variable | Definition | Source |
-|----------|------------|--------|
-| Age | Years at MEC exam | RIDAGEYR |
-| Sex | 1=Male, 2=Female | RIAGENDR |
-| Race/Ethnicity | 5 categories | RIDRETH1 |
-| Education | Adults 20+ education | DMDEDUC2 |
-| Poverty Income Ratio | Family PIR | INDFMPIR |
+Standard demographics from DEMO files: age at exam (RIDAGEYR), sex (RIAGENDR), race/ethnicity (RIDRETH1—the 5-category version), education (DMDEDUC2), and family poverty-income ratio (INDFMPIR).
 
-### 3.3 Risk Factors (For Future Analysis)
+### Risk Factor Definitions (for later)
 
-| Factor | Definition |
-|--------|------------|
-| Hypertension | SBP≥130 OR DBP≥80 OR BP medication |
-| Diabetes | HbA1c≥6.5% OR FPG≥126 OR DM medication |
-| Hyperlipidemia | TC≥200 OR LDL≥130 mg/dL |
-| Obesity | BMI ≥30 kg/m² |
-| LDL Cholesterol | Friedewald: TC - HDL - TG/5 (excluded if TG>400) |
+We've set up definitions for future analyses:
+- Hypertension: SBP ≥130 or DBP ≥80 or on BP meds
+- Diabetes: A1c ≥6.5% or FPG ≥126 or on diabetes meds
+- Hyperlipidemia: TC ≥200 or LDL ≥130
+- Obesity: BMI ≥30
+- LDL: Friedewald calculation (excluded if triglycerides >400)
 
 ---
 
 ## 4. Statistical Methods
 
-### 4.1 Survey Design
+### Survey Design
 
-NHANES uses a complex, multistage probability sampling design. All analyses accounted for:
+NHANES is complex survey data, so all analyses use the survey package in R with stratification (SDMVSTRA), clustering (SDMVPSU), and MEC exam weights (WTMEC2YR). Variance estimation via Taylor series linearization. For lonely PSUs, we used the certainty adjustment.
 
-- **Stratification:** SDMVSTRA
-- **Primary Sampling Units:** SDMVPSU
-- **Sample Weights:** WTMEC2YR (MEC examined weights)
+### Handling Weights Across Eras
 
-### 4.2 Software
+This is always a headache with multi-cycle NHANES analyses. Here's what we did:
 
-- **Primary analysis:** R 4.4.1 with `survey` package
-- **Variance estimation:** Taylor series linearization
-- **Lonely PSU handling:** Certainty adjustment
+| Era | Approach |
+|-----|----------|
+| Era 1 | NHANES III weights used as-is (designed as 6-year survey) |
+| Eras 2 & 3 | Combined four 2-year cycles by dividing WTMEC2YR by 4 |
+| Era 4a | Used the NCHS pre-pandemic combined weights |
+| Era 4b | Used NCHS weights for the 2021–2023 sample per their guidance for the revised design |
 
-### 4.3 Age Standardization
+### Age Standardization
 
-Used 2000 U.S. Standard Population weights:
+Direct standardization to the 2000 US Standard Population, restricted to ages 20+ and renormalized to sum to 1:
 
 | Age Group | Weight |
 |-----------|--------|
-| 20-29 | 0.1318 |
-| 30-39 | 0.1342 |
-| 40-49 | 0.1354 |
-| 50-59 | 0.0933 |
-| 60-69 | 0.0640 |
-| 70-79 | 0.0463 |
-| 80+ | 0.0229 |
+| 20–29 | 0.190 |
+| 30–39 | 0.193 |
+| 40–49 | 0.195 |
+| 50–59 | 0.134 |
+| 60–69 | 0.092 |
+| 70–79 | 0.067 |
+| 80+ | 0.033 |
 
-### 4.4 Trend Analysis
+For each era, we computed age-specific prevalences and then weighted them by these standard population shares.
 
-Linear trend tested via survey-weighted logistic regression:
+### Trend Testing
+
+Our primary model is age-adjusted logistic regression:
+
 ```
-logit(CHD) ~ era_num
+logit(CHD) ~ era_num + age_cat
 ```
-Where era_num = 1, 2, 3, 4, 5 for the five eras.
+
+Here `era_num` is just 1 through 5, and `age_cat` uses the same age groups as the standardization. This tests whether there's a linear trend after accounting for the different age distributions across survey periods.
+
+We think of it this way: the age-standardized prevalence estimates (Table 5.1) tell you *what* the burden looks like if age distributions were the same, while the regression model tells you *whether* there's a statistically significant trend and gives you an odds ratio.
+
+We also ran the unadjusted model for comparison.
+
+### Software
+
+R 4.4.1 with the survey package (v4.2) for all weighted analyses. Python 3.11 for data processing.
 
 ---
 
 ## 5. Results
 
-### 5.1 CHD Prevalence by Era (Survey-Weighted)
+### 5.1 Age-Standardized Prevalence
+
+This is the primary table—what prevalence would look like if every era had the same age distribution:
 
 | Era | Period | Prevalence | 95% CI | n |
 |-----|--------|------------|--------|---|
-| Era 1 | 1988-1994 | **5.45%** | 4.95-5.96% | 16,552 |
-| Era 2 | 1999-2006 | **6.19%** | 5.62-6.75% | 20,196 |
-| Era 3 | 2007-2014 | **5.65%** | 5.24-6.06% | 23,390 |
-| Era 4a | 2015-2020 | **6.09%** | 5.03-7.15% | 5,688 |
-| Era 4b | 2021-2023 | **6.26%** | 5.49-7.04% | 7,772 |
+| 1 | 1988–1994 | 5.51% | 5.03–5.99% | 16,552 |
+| 2 | 1999–2006 | 5.98% | 5.60–6.36% | 20,196 |
+| 3 | 2007–2014 | 4.98% | 4.68–5.27% | 23,390 |
+| 4a | 2015–March 2020 | 5.04% | 4.42–5.66% | 5,688 |
+| 4b | Aug 2021–Aug 2023 | 4.80% | 4.32–5.28% | 7,772 |
 
-### 5.2 Trend Test
+The pattern here is clearer than the crude numbers—there's a real decline, especially visible from Era 2 onward.
 
-| Parameter | Estimate | Std. Error | p-value |
-|-----------|----------|------------|---------|
-| Intercept | -2.80 | 0.066 | <0.001 |
-| Era (linear) | 0.011 | 0.022 | **0.62** |
+### 5.2 Crude Prevalence (for reference)
 
-**Interpretation:** No statistically significant linear trend in CHD prevalence over 35 years.
+| Era | Period | Prevalence | 95% CI | n |
+|-----|--------|------------|--------|---|
+| 1 | 1988–1994 | 5.45% | 4.95–5.96% | 16,552 |
+| 2 | 1999–2006 | 6.19% | 5.62–6.75% | 20,196 |
+| 3 | 2007–2014 | 5.65% | 5.24–6.06% | 23,390 |
+| 4a | 2015–March 2020 | 6.09% | 5.03–7.15% | 5,688 |
+| 4b | Aug 2021–Aug 2023 | 6.26% | 5.49–7.04% | 7,772 |
 
-### 5.3 CHD Prevalence by Sex
+These look basically flat—the aging population is masking real declines.
 
-| Era | Males | Females |
-|-----|-------|---------|
-| 1988-1994 | 4.8% | 6.1% |
-| 1999-2006 | 7.4% | 5.1% |
-| 2007-2014 | 7.1% | 4.3% |
-| 2015-2020 | 7.1% | 5.2% |
-| 2021-2023 | 8.1% | 4.6% |
+### 5.3 Trend Tests
 
-**Note:** Era 1 shows reversed sex pattern (F>M), which may reflect differences in NHANES III methodology or sampling.
+| Model | Era Coefficient | SE | p-value |
+|-------|----------------|-----|---------|
+| Age-adjusted | -0.067 | 0.019 | <0.001 |
+| Unadjusted | 0.011 | 0.022 | 0.62 |
 
-### 5.4 CHD Prevalence by Race/Ethnicity (1999-2023 Only)
+The age-adjusted coefficient translates to about a 6.5% decrease in odds per era (OR ≈ 0.94). This is testing a strictly linear trend and wouldn't pick up non-monotonic patterns if they exist.
 
-| Race/Ethnicity | Range Across Eras |
-|----------------|-------------------|
-| Non-Hispanic White | 6.4-7.6% |
-| Non-Hispanic Black | 4.1-5.2% |
-| Mexican American | 2.5-3.3% |
-| Other Hispanic | 3.5-4.6% |
-| Other/Multiracial | 4.4-6.5% |
+### 5.4 By Sex
+
+| Era | Period | Males | Females |
+|-----|--------|-------|---------|
+| 1 | 1988–1994 | 4.76% (4.22–5.30%) | 6.09% (5.25–6.92%) |
+| 2 | 1999–2006 | 7.39% (6.53–8.24%) | 5.08% (4.45–5.72%) |
+| 3 | 2007–2014 | 7.09% (6.47–7.71%) | 4.30% (3.85–4.76%) |
+| 4a | 2015–March 2020 | 7.07% (5.70–8.44%) | 5.19% (4.02–6.35%) |
+| 4b | Aug 2021–Aug 2023 | 8.08% (6.88–9.29%) | 4.56% (3.78–5.33%) |
+
+Note the flipped pattern in Era 1—women had higher prevalence than men. We double-checked the coding; it's not an error. Likely reflects something about NHANES III methodology or how CHD was diagnosed/reported in that era. From Era 2 onward, the expected pattern holds.
+
+These are crude estimates. We can generate age-standardized versions by sex if needed.
+
+### 5.5 By Race/Ethnicity (1999–2023)
+
+We're only showing continuous NHANES here because the race categories changed between NHANES III and later cycles.
+
+| Group | Era 2 | Era 3 | Era 4a | Era 4b |
+|-------|-------|-------|--------|--------|
+| NH White | 7.03% (6.38–7.68%) | 6.40% (5.83–6.98%) | 6.80% (5.17–8.44%) | 7.57% (6.50–8.65%) |
+| NH Black | 5.18% (4.45–5.91%) | 4.57% (4.00–5.15%) | 5.33% (4.00–6.67%) | 4.08% (3.07–5.09%) |
+| Mexican American | 2.81% (2.34–3.27%) | 3.28% (2.67–3.90%) | 2.52% (1.49–3.56%) | 2.95% (1.57–4.32%) |
+| Other Hispanic | 3.08% (2.35–3.81%) | 3.89% (3.06–4.72%) | 4.62% (3.59–5.66%) | 4.36% (2.38–6.34%) |
+| Other/Multi | 4.54% (2.52–6.55%) | 4.36% (3.31–5.42%) | 6.51% (3.27–9.76%) | 5.22% (3.43–7.00%) |
+
+The pattern is consistent: NH White adults have the highest prevalence, Mexican American the lowest. The gap is 3–4 percentage points throughout.
 
 ---
 
 ## 6. Limitations
 
-1. **Self-reported CHD:** NHANES relies on participant recall of physician diagnosis
-2. **NHANES III methodology:** Era 1 used different questionnaire administration
-3. **Pre-pandemic disruption:** NHANES 2019-2020 was truncated; combined with 2017-2018
-4. **Cross-sectional design:** Cannot establish incidence or causation
-5. **Weight harmonization:** Different weight schemes across cycles partially addressed by era-specific analyses
+**Self-report.** This is the big one—we're relying on people remembering whether a doctor told them they have CHD. Recall bias and diagnostic access both matter here.
+
+**NHANES III differences.** Era 1 used different interview methods. That flipped sex pattern might be real or might be methodological. Hard to know for sure.
+
+**Pandemic disruption.** The 2019–20 cycle got cut short. We combined it with 2017–18 per NCHS guidance, but Era 4a has smaller n than we'd like.
+
+**Cross-sectional data.** We can describe prevalence but can't say anything about incidence. Changes in survival, diagnostic criteria, and awareness over 35 years all feed into prevalence trends in ways we can't disentangle.
+
+**Weight harmonization.** We followed NCHS guidance throughout (see Section 4.2), but combining weights across different survey designs is always imperfect.
+
+**Linear trend.** Our test assumes monotonic change. If there were ups and downs, we'd miss that.
 
 ---
 
-## 7. Technical Implementation
+## 7. Technical Details
 
-### 7.1 Data Pipeline
+### Pipeline
 
 ```
-01_download_data_fixed.py    → Downloads Continuous NHANES (1999-2023)
-05_nhanes_iii_processor.py   → Downloads NHANES III (1988-1994)
-06_nhanes_iii_harmonize.py   → Harmonizes NHANES III variables
-02_harmonize_variables.py    → Creates unified dataset
-04_R_survey_analysis.R       → Survey-weighted analysis
+01_download_data_fixed.py    → Continuous NHANES (1999–2023)
+05_nhanes_iii_processor.py   → NHANES III download
+06_nhanes_iii_harmonize.py   → NHANES III variable mapping
+02_harmonize_variables.py    → Combine everything
+04_R_survey_analysis.R       → Analysis with survey weights
 ```
 
-### 7.2 Output Files
+### Output Files
 
-| File | Description |
-|------|-------------|
-| `nhanes_chd_full_35year.parquet` | Complete harmonized dataset (139,605 participants) |
-| `R_survey_prevalence_by_era.csv` | Main results with CIs |
-| `R_survey_prevalence_by_sex.csv` | Sex-stratified results |
-
-### 7.3 GitHub Repository
-
-All code is available at: **https://github.com/andrewbouras/NHANESv2**
-
----
-
-## 8. Next Steps (For Consideration)
-
-1. **Age-standardized prevalence table** by era
-2. **Risk factor analysis:** Prevalence of HTN, DM, obesity among CHD cases
-3. **Mortality linkage:** NHANES Linked Mortality Files (follow-up through 2019)
-4. **Subgroup analyses:** Age-stratified, education/SES-stratified
-5. **Joinpoint regression:** Alternative trend analysis approach
+| File | What It Contains |
+|------|------------------|
+| `nhanes_chd_full_35year.parquet` | Full harmonized dataset (n=139,605) |
+| `R_age_standardized_prevalence_by_era.csv` | Age-standardized estimates |
+| `R_survey_prevalence_by_era.csv` | Crude estimates |
+| `R_survey_prevalence_by_sex.csv` | Sex-stratified |
+| `R_survey_prevalence_by_race.csv` | Race/ethnicity-stratified |
+| `R_trend_test_results.csv` | Model coefficients |
 
 ---
 
-## 9. Appendix: Key Decisions Made
+## 8. What's Next
 
-| Question | Decision | Rationale |
-|----------|----------|-----------|
-| Era 4 pandemic split? | Yes, split into 4a/4b | Per PI - isolate pandemic effect |
-| Mortality linkage? | Deferred | Focus on prevalence first |
-| Physical activity? | Not included | Questionnaire changed too much |
-| LDL calculation? | Friedewald equation | Standard practice; noted TG>400 exclusion |
-| Age standardization? | 2000 US Standard | NCHS convention |
-| Missing data? | Complete case | Standard NHANES approach |
+A few things we're thinking about:
+
+1. **Risk factor trends** — How have HTN, diabetes, and obesity among CHD cases changed over time?
+2. **Mortality linkage** — NHANES has linked mortality through 2019. Could look at survival patterns.
+3. **Subgroup analyses** — Trends by age group, education, income
+4. **Sensitivity checks** — Try narrower CHD definitions (MI only, for instance)
+5. **Non-linear models** — Categorical era terms, maybe joinpoint regression
 
 ---
 
-**Prepared by:** Biostatistics Team  
-**Analysis Date:** December 23, 2024  
-**Software:** R 4.4.1 (survey 4.2), Python 3.11
+## 9. Decisions Log
+
+| Issue | What We Did | Why |
+|-------|-------------|-----|
+| Split Era 4? | Yes, 4a vs 4b | PI wanted to see pandemic effect separately |
+| Mortality linkage | Not yet | Keeping focus on prevalence first |
+| Physical activity | Excluded | Questionnaire changed too much across cycles |
+| LDL calculation | Friedewald | Standard; excluded TG >400 |
+| Age standardization | 2000 US Standard Pop | NCHS convention |
+| Missing data | Complete case | Standard for NHANES |
+| Trend model | Age-adjusted | Necessary given 35-year age shift |
+
+---
+
+## Appendix: Methods Paragraph for Manuscripts
+
+> We analyzed data from NHANES III (1988–1994) and continuous NHANES (1999–2023), including 73,598 adults aged 20 years or older with valid MEC examination weights and CHD outcome data. CHD was defined as self-reported diagnosis of coronary heart disease, angina, or myocardial infarction. We estimated age-standardized prevalence using direct standardization to the 2000 US Standard Population. Trend across five eras was assessed using survey-weighted logistic regression with era as a continuous predictor, adjusting for age category. All analyses incorporated NHANES complex survey design using the R survey package with Taylor series linearization.
+
+---
+
+*Analysis completed December 2024*  
+*R 4.4.1 (survey 4.2) • Python 3.11*

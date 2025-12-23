@@ -1,105 +1,87 @@
-# NHANES CHD Prevalence Trends Study (1988-2023)
+# NHANES CHD Trends (1988–2023)
 
-A comprehensive analysis of 35-year trends in coronary heart disease (CHD) prevalence using NHANES data.
+Analyzing 35 years of coronary heart disease prevalence in US adults using NHANES.
 
-## Study Overview
+## What We Found
 
-This project analyzes CHD prevalence across five eras spanning 35 years:
+| Era | Period | Sample | Age-Std Prevalence |
+|-----|--------|--------|-------------------|
+| 1 | 1988–1994 | 16,552 | 5.5% |
+| 2 | 1999–2006 | 20,196 | 6.0% |
+| 3 | 2007–2014 | 23,390 | 5.0% |
+| 4a | 2015–Mar 2020 | 5,688 | 5.0% |
+| 4b | 2021–2023 | 7,772 | 4.8% |
 
-| Era | Period | Sample | CHD Prevalence |
-|-----|--------|--------|---------------|
-| Era 1 | 1988-1994 | 16,552 | 5.5% (5.0-6.0%) |
-| Era 2 | 1999-2006 | 20,196 | 6.2% (5.6-6.8%) |
-| Era 3 | 2007-2014 | 23,390 | 5.7% (5.2-6.1%) |
-| Era 4a | 2015-2020 | 5,688 | 6.1% (5.0-7.2%) |
-| Era 4b | 2021-2023 | 7,772 | 6.3% (5.5-7.0%) |
+**73,598 adults total**
 
-**Total: 73,598 adults ≥20 years**
+The short version: CHD prevalence is actually going *down*, but you have to age-standardize to see it. The crude numbers look flat because the US population has gotten older—more old people means more CHD, which offsets the underlying decline in age-specific rates.
 
-## Key Findings
+- Age-adjusted trend: **p < 0.001** (declining)
+- Crude trend: p = 0.62 (looks flat)
+- Persistent disparities: NH White ~7%, Mexican American ~3%
 
-1. **No significant secular trend** (p=0.62) in CHD prevalence over 35 years
-2. **Persistent sex disparity**: Males 7-8% vs Females 4-6%
-3. **Post-pandemic prevalence**: Slight increase to 6.3% (not statistically significant)
-
-## Project Structure
+## Repo Structure
 
 ```
 ├── data/
-│   ├── raw/           # Downloaded NHANES XPT files (~300MB)
-│   └── processed/     # Harmonized parquet files
+│   ├── raw/           # NHANES XPT files
+│   └── processed/     # Harmonized parquet
+├── docs/
+│   └── PI_Technical_Report.md
 ├── scripts/
-│   ├── 01_download_data_fixed.py    # Download Continuous NHANES
-│   ├── 02_harmonize_variables.py    # Variable crosswalk
-│   ├── 03_statistical_analysis.py   # Python analysis
-│   ├── 04_R_survey_analysis.R       # R survey-weighted analysis
-│   ├── 05_nhanes_iii_processor.py   # NHANES III download
-│   └── 06_nhanes_iii_harmonize.py   # NHANES III processing
-├── output/
-│   └── tables/        # Results CSV files
-└── README.md
+│   ├── 01_download_data_fixed.py
+│   ├── 02_harmonize_variables.py
+│   ├── 04_R_survey_analysis.R      # Main analysis
+│   ├── 05_nhanes_iii_processor.py
+│   └── 06_nhanes_iii_harmonize.py
+└── output/tables/
 ```
 
-## Quick Start
+## Running It
 
-### Prerequisites
-- Python 3.8+
-- R 4.0+ with `survey` and `arrow` packages
-- pandas, numpy, requests, beautifulsoup4
-
-### Installation
+You'll need Python 3.8+ and R 4.0+.
 
 ```bash
+# Python deps
 pip install pandas numpy pyarrow requests beautifulsoup4
 
-# R packages
+# R deps
 R -e "install.packages(c('survey', 'arrow'))"
 ```
 
-### Running the Analysis
+Then run the pipeline:
 
 ```bash
-# 1. Download NHANES data (Continuous 1999-2023)
-python scripts/01_download_data_fixed.py
-
-# 2. Download and process NHANES III (1988-1994)
-python scripts/05_nhanes_iii_processor.py
-python scripts/06_nhanes_iii_harmonize.py
-
-# 3. Harmonize all data
-python scripts/02_harmonize_variables.py
-
-# 4. Run survey-weighted analysis (publication-ready)
-Rscript scripts/04_R_survey_analysis.R
+python scripts/01_download_data_fixed.py     # Get continuous NHANES
+python scripts/05_nhanes_iii_processor.py    # Get NHANES III
+python scripts/06_nhanes_iii_harmonize.py    # Process III
+python scripts/02_harmonize_variables.py     # Combine
+Rscript scripts/04_R_survey_analysis.R       # Analyze
 ```
 
-## Methodology
+## Methods Notes
 
-### CHD Definition
-Composite of affirmative response to any:
-- Coronary heart disease (MCQ160C / HAD1)
-- Angina (MCQ160D / HAD2)  
-- Heart attack (MCQ160E / HAD3)
+**CHD definition**: Composite of self-reported CHD, angina, or MI (MCQ160C/D/E in continuous NHANES, HAD1/2/3 in III).
 
-### Analysis
-- **Weighting**: Complex survey design using Taylor series linearization
-- **Age standardization**: 2000 U.S. Standard Population
-- **Software**: R `survey` package for variance estimation
+**Weighting**: We followed NCHS guidance for combining cycles—divide WTMEC2YR by number of 2-year cycles when pooling. Taylor series linearization for variance.
 
-## Data Sources
+**Age standardization**: Direct to 2000 US Standard Population (adults 20+, renormalized).
 
-- [NHANES Continuous (1999-2023)](https://wwwn.cdc.gov/nchs/nhanes/Default.aspx)
-- [NHANES III (1988-1994)](https://wwwn.cdc.gov/nchs/nhanes/nhanes3/default.aspx)
+**Trend model**: `logit(CHD) ~ era + age_cat` using survey-weighted logistic regression.
 
-## Output Files
+## Output
 
-- `R_survey_prevalence_by_era.csv` - Main prevalence estimates with 95% CIs
-- `R_survey_prevalence_by_sex.csv` - Sex-stratified results
+Main results in `output/tables/`:
+- `R_age_standardized_prevalence_by_era.csv` — the key table
+- `R_survey_prevalence_by_era.csv` — crude numbers
+- `R_survey_prevalence_by_sex.csv`
+- `R_survey_prevalence_by_race.csv`
+- `R_trend_test_results.csv`
 
-## License
+Full writeup in `docs/PI_Technical_Report.md`.
 
-This project uses publicly available NHANES data from the CDC/NCHS.
+## Data
 
-## Citation
-
-If using this code, please cite the NHANES documentation and this repository.
+Public NHANES data from CDC/NCHS:
+- [Continuous NHANES](https://wwwn.cdc.gov/nchs/nhanes/Default.aspx)
+- [NHANES III](https://wwwn.cdc.gov/nchs/nhanes/nhanes3/default.aspx)
